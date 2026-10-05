@@ -50,10 +50,6 @@ body.admin-mode .forum-nav button.admin-only{display:inline-block;background:#8b
 .forum-search{background:#dfdfdf;padding:8px 16px;border-bottom:1px solid #808080;position:relative}
 .forum-search input{width:100%;max-width:400px;padding:6px 10px;font-size:13px;border:2px inset #fff}
 .forum-search button{padding:6px 16px;font-size:13px;background:#c0c0c0;border:2px outset #fff;cursor:pointer;font-family:inherit;margin-left:8px}
-.search-suggestions{position:absolute;top:100%;left:16px;width:400px;max-width:calc(100% - 32px);background:#fff;border:1px solid #808080;z-index:100;display:none}
-.search-suggestions div{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #eee}
-.search-suggestions div:hover{background:#e0e0ff}
-.search-suggestions .creepy{color:#8b0000;font-style:italic}
 .forum-main{padding:16px;max-width:1000px;margin:0 auto}
 .post-list{background:#fff;border:2px outset #fff}
 .post-list table{width:100%;border-collapse:collapse;font-size:13px}
@@ -141,7 +137,6 @@ body.guardian-mode .forum-nav button.guardian-only{display:inline-block;backgrou
   .forum-header .info{font-size:10px}
   .post-list table{font-size:11px}
   .post-list th,.post-list td{padding:6px 4px}
-  .search-suggestions{width:calc(100% - 32px)}
 }
 </style>
 </head>
@@ -186,9 +181,8 @@ body.guardian-mode .forum-nav button.guardian-only{display:inline-block;backgrou
   </div>
 
   <div class="forum-search">
-    <input type="text" id="forum-search-input" placeholder="搜索帖子..." oninput="showSuggestions(this.value)" onfocus="showSuggestions(this.value)" onblur="setTimeout(hideSuggestions,200)">
+    <input type="text" id="forum-search-input" placeholder="搜索帖子..." onkeydown="if(event.key==='Enter')forumSearch()">
     <button onclick="forumSearch()">搜索</button>
-    <div class="search-suggestions" id="search-suggestions"></div>
   </div>
 
   <div class="forum-main">
@@ -299,7 +293,8 @@ body.guardian-mode .forum-nav button.guardian-only{display:inline-block;backgrou
       <h2>祭坛指引</h2>
       <div class="ornament">✧ ✦ ✧</div>
       <p>祭坛面向北方，中央有一个凹槽，用于放置奉献者的随身物品。</p>
-      <p>祭坛上方刻有四个字："往生自在"。</p>
+      <p>祭坛上方刻有四个字，是注销奉献的密钥。</p>
+      <p>这四个字，只有守护者知道。</p>
       <div class="ornament">✧ ✦ ✧</div>
     </div>
     <div class="cult-page" id="cult-contact">
@@ -419,6 +414,12 @@ const posts = {
     {id:'n15',title:'李伯家出什么事了',author:'关心邻居',replies:2,last:'1990-09-03',content:'今天早上李伯家门口围了好多人。',replies:[{author:'知情者',time:'1990-09-03 10:00',text:'老李走了……'},{author:'关心邻居',time:'1990-09-03 10:30',text:'怎么会……'}]},
     {id:'n16',title:'【已删除】3号楼4楼的怪事',author:'3号楼住户',replies:0,last:'1990-06-15',deleted:true,
      content:'我住3号楼402。\n最近4楼总是有怪事。\n先是401的住户说晚上听到隔壁有小孩哭。\n然后403的住户说有人敲他家门。\n我昨晚也听到了，是从403和墙之间传出来的。\n但403隔壁应该是外墙啊？\n今天我去问楼长，他说3号楼只有401、402、403。\n没有404。\n但我明明记得，小时候是有404的。\n难道我记错了？',replies:[]},
+    {id:'n17',title:'张婶失踪前有点不对劲',author:'201邻居',replies:3,last:'1990-09-04',
+     content:'张桂兰失踪前几天就有点不对劲。\n她跟我说，晚上总听到有人在楼道里喊"张婶，张婶"。\n我以为她听错了。\n失踪前一天，她跟我说"我知道404在哪了"。\n我问她什么404，她就不说了。\n第二天人就没了。\n煤气灶上的排骨都烧干了。',
+     replies:[{author:'胆小的人',time:'1990-09-04 10:00',text:'太吓人了'},{author:'201邻居',time:'1990-09-04 11:00',text:'她还说要去404看看'},{author:'居委会',time:'1990-09-04 14:00',text:'请大家不要传播不实信息'}]},
+    {id:'n18',title:'李伯生前最后一晚',author:'棋友老王',replies:2,last:'1990-09-04',
+     content:'老李走前一晚，我们下象棋到十点。\n他心不在焉的，输了三把。\n临走的时候他跟我说："老王，你说人死后还能下棋吗？"\n我以为他开玩笑。\n他又说："我明天要去个地方，可能回不来了。"\n我问他去哪，他说"404"。\n我说咱们楼没有404啊。\n他笑了笑，说"有的，只是你们看不到"。\n第二天人就没了。\n穿得整整齐齐，鞋尖朝门。',
+     replies:[{author:'棋友老张',time:'1990-09-04 09:00',text:'老李这是……知道自己要走？'},{author:'胆小的人',time:'1990-09-04 10:30',text:'404到底是什么啊'}]},
   ],
   chat: [
     {id:'c1',title:'对面楼老李走了',author:'住户甲',replies:8,last:'1990-09-03',
@@ -433,7 +434,7 @@ const posts = {
               {author:'梦华',time:'1990-09-03 23:00',text:''}],
      editable:true,editContent:'（3秒后此帖被梦华编辑）\n\n今天早上发现的，穿得整整齐齐，鞋尖朝门。\n昨天还跟我下象棋呢。\n\n……陌生人，如果你看到这个帖子，帮帮我弟弟。他在404。'},
     {id:'c2',title:'今天天气真好',author:'阳光青年',replies:3,last:'1990-09-03',content:'适合爬山！有人一起吗？',replies:[{author:'登山爱好者',time:'1990-09-03 08:00',text:'几点？'},{author:'阳光青年',time:'1990-09-03 08:30',text:'早6点厂门口'},{author:'梦华',time:'1990-09-03 23:00',text:''}]},
-    {id:'c3',title:'有人在吗',author:'menghui19',replies:0,last:'1990-09-03',needLogin:true,
+    {id:'c3',title:'有人在吗',author:'menghui19',replies:0,last:'1990-09-03',
      content:'我感觉有人在看我的帖子。\n是你吗？\n你是谁？\n\n……如果你能看到，帮帮我。\n我已经循环182次了。\n每次都是9月3日。\n每次都有人敲门。\n每次我都死了。',
      replies:[]},
     {id:'c4',title:'老式台灯什么牌子好',author:'住户庚',replies:4,last:'1990-09-01',content:'想买台灯，什么牌子耐用？',replies:[{author:'住户辛',time:'1990-09-01 19:00',text:'红光牌，我家用了十年'},{author:'住户壬',time:'1990-09-01 20:00',text:'对，我姐那个用了快二十年'},{author:'住户癸',time:'1990-09-01 21:00',text:'我家也是红光牌'},{author:'梦华',time:'1990-09-01 23:00',text:''}]},
@@ -538,6 +539,10 @@ const posts = {
      content:'我不知道你叫什么，也不知道你在哪一年。\n但你看到了这里，你没有走开。\n谢谢你。\n1990年9月3日，是我弟弟19岁生日。\n如果你那边也有生日，替我跟他说一声：生日快乐。',replies:[]},
     {id:'s7',title:'【已删除】地下室的声音',author:'梦华',replies:0,last:'1989-12-31',deleted:true,forbidden:true,
      content:'',replies:[]},
+    {id:'s8',title:'1970年赵秀英丈夫失踪案',author:'老住户',replies:0,last:'1985-06-10',hidden:true,
+     content:'1970年中元节，赵秀英失踪。\n她丈夫疯了一样找了三个月。\n有人说他在地下室听到了妻子的声音。\n然后他也失踪了。\n厂里说是跳河了，但尸体没找到。\n\n老人们说，他是被祭坛收了。\n因为他太想找到妻子。\n祭坛满足了他的愿望——\n让他和妻子永远在一起了。\n\n只是那种"在一起"，不是活人能理解的。',replies:[]},
+    {id:'s9',title:'每十年少一个人',author:'知情者',replies:0,last:'1988-09-05',hidden:true,
+     content:'我在这个厂住了三十年。\n我发现了一个规律：\n每十年的中元节，都会少一个人。\n\n1960年：三个建筑工人\n1970年：赵秀英（和她丈夫）\n1980年：王芳\n1990年：……还没到\n\n少的人，过几天就没人记得了。\n只有我记得。\n因为我是门卫，我有登记本。\n但登记本上，他们的名字都被划掉了。\n用红笔。\n\n下一个是谁？\n我不知道。\n但我知道，一定是在中元节。',replies:[]},
   ],
   basement: [
     {id:'b1',title:'我是守护者',author:'守护者',replies:0,last:'1990-09-03',
@@ -573,7 +578,7 @@ const posts = {
 const guardianLogs = [
   {date:'1960年7月15日',content:'今天挖地基，挖出了东西。一个石头祭坛，上面刻满了字。厂长说就地掩埋，继续盖楼。我当晚就做了噩梦，梦见祭坛在说话。'},
   {date:'1960年8月20日',content:'三个工人失踪了。就在中元节那天。厂长找我来处理。我问他怎么办，他说"你守着，别让别人知道"。我答应了。从那天起，我就是守护者。'},
-  {date:'1960年9月1日',content:'楼盖好了。我搬进了门卫室。祭坛在地下室最里面，用砖封了。但我能感觉到它在发烫。每年中元节，它都会烫得厉害。'},
+  {date:'1960年9月1日',content:'楼盖好了。我搬进了门卫室。祭坛在地下室最里面，用砖封了。但我能感觉到它在发烫。每年中元节，它都会烫得厉害。祭坛正面刻着四个字：往生自在。那是注销奉献的密钥。除了我，没人知道。'},
   {date:'1970年8月20日',content:'十年到了。祭坛又开始发烫。我选了赵秀英，二号楼的寡妇。她无儿无女，走了也没人找。中元节那天晚上，我把她的发卡放进了凹槽。她从所有人的记忆里消失了。只有我记得。'},
   {date:'1970年9月5日',content:'赵秀英的丈夫来找她。我说没见过。他疯了一样到处找。三个月后，他也失踪了。有人说他跳河了。我知道，是祭坛把他也收了。'},
   {date:'1980年7月10日',content:'又一个十年。这次选了王芳，医务室的护士。她年轻，才22岁。我不忍心，但规矩就是规矩。中元节那天，她自己走进了地下室。她说她听到了声音。我拦不住。'},
@@ -604,7 +609,6 @@ const searchKeywords = {
 };
 
 const fakeKeywords = ['周梦回','自杀','鬼','逃跑','报警','姐姐','密码','管理员','时间','敲门声','红光厂','中元节','轮回','真相','帮助','出口','401','402','403','永远在线','网页','网站'];
-const creepySuggestions = ['你是谁','帮帮我们','别开门','404','梦华在等你','他在看你','不要回头','11:59','循环','第182次'];
 
 let currentUser = null, currentBoard = 'announce', loginAttempts = {menghui19:0,menghua:0,chenshouyi:0};
 let visitorLogs = [], onlineCount = 404, offeringCanceled = false, hasCleared = false;
@@ -617,7 +621,14 @@ window.onload = function(){
   if(hasCleared){
     onlineCount = 402;
     document.getElementById('online-count').textContent = '402';
+    document.getElementById('forum-title').textContent = '红光厂家园网 · 已重启';
     setTimeout(()=>{showToast('欢迎回来。论坛已经不一样了。');},1000);
+    setTimeout(()=>{showToast('mengua和menghui19的账号已注销。');},3000);
+    // 多周目新增帖子
+    posts.chat.push({id:'c31',title:'给那个陌生人',author:'已注销',replies:0,last:'1990-09-04',
+      content:'谢谢你。\n\n我和弟弟走了。\n走之前，他说想跟你下一盘象棋。\n可惜没机会了。\n\n陈大爷说，他会守着这里。\n如果你还来，替我们看看他。\n\n——梦华\n\nP.S. 门卫室的茶，记得帮他换。他总忘了。',replies:[]});
+    posts.announce.push({id:'a14',title:'论坛维护通知',author:'管理员',replies:0,last:'1990-09-04',
+      content:'因系统维护，部分账号已注销。\n论坛将继续运行。\n感谢大家的陪伴。\n\n——红光厂家园网管理组',replies:[]});
   }
   addVisitorLog('访客进入论坛');
   initAudio();
@@ -653,21 +664,6 @@ function startTitleChange(){
     }
   });
 }
-
-function showSuggestions(val){
-  const box = document.getElementById('search-suggestions');
-  if(!val){box.style.display='none';return;}
-  let html = '';
-  const normal = Object.keys(searchKeywords).filter(k=>k.includes(val)).slice(0,3);
-  normal.forEach(k=>{html += `<div onclick="document.getElementById('forum-search-input').value='${k}';forumSearch()">${k}</div>`;});
-  if(Math.random()>0.5){
-    const creepy = creepySuggestions[Math.floor(Math.random()*creepySuggestions.length)];
-    html += `<div class="creepy" onclick="document.getElementById('forum-search-input').value='${creepy}'">${creepy}</div>`;
-  }
-  box.innerHTML = html;
-  box.style.display = html ? 'block' : 'none';
-}
-function hideSuggestions(){document.getElementById('search-suggestions').style.display='none';}
 
 function doSearch(){
   document.getElementById('search-results').style.display='block';
@@ -869,7 +865,6 @@ function showGuardianRoom(btn){
 function backToBoard(){document.getElementById('board-view').style.display='block';document.getElementById('post-view').style.display='none';document.getElementById('admin-panel').style.display='none';document.getElementById('guardian-room').style.display='none';document.getElementById('search-results-view').style.display='none';playClickSound();}
 
 function forumSearch(){
-  hideSuggestions();
   const kw=document.getElementById('forum-search-input').value.trim();
   if(!kw){showToast('请输入关键词');return;}
   document.getElementById('board-view').style.display='none';
@@ -916,7 +911,7 @@ function loginSuccess(u){
     onlineCount=403;document.getElementById('online-count').textContent=onlineCount;
     document.getElementById('cancel-offering-btn').style.display='block';
     setTimeout(()=>{triggerKnockEffect();},2000);
-    setTimeout(()=>{showPM('menghua','你登录了我的账号。\n谢谢你，陌生人。\n去"联系我们"页面，那里有一个按钮。\n点击它，帮我注销奉献。\n\n注销需要密钥。\n密钥是祭坛上刻的四个字。\n去"祭坛指引"页面看看吧。\n\n另外……管理后台里有一些我删掉的帖子。\n如果你好奇，可以看看。\n但有些帖子……不是你该看的。');},5000);
+    setTimeout(()=>{showPM('menghua','你登录了我的账号。\n谢谢你，陌生人。\n去"联系我们"页面，那里有一个按钮。\n点击它，帮我注销奉献。\n\n注销需要密钥。\n密钥是祭坛上刻的四个字。\n但我不能直接告诉你。\n去管理后台看看吧，那里有我删掉的帖子。\n陈大爷的门卫室日志里，也许也有线索。\n\n另外……有些帖子……不是你该看的。');},5000);
   }
   if(u==='chenshouyi'){
     document.body.classList.add('guardian-mode');
